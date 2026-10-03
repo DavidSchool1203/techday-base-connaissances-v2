@@ -20,4 +20,4 @@ tags: [techday, suivi]
 - L'application ne doit pas demander de connexion. La table et le chatbot seront donc accessibles en lecture depuis l'application HTML locale, sans possibilité d'écriture.
 - La fonction Supabase `chat-with-knowledge` cherche au plus 12 fiches locales pertinentes et utilise la clé Gemini `API_1` stockée dans les secrets Supabase. Les URL ne sont jamais envoyées à Gemini.
 - Test validé sans connexion : les 147 fiches sont affichées et le chatbot répond à une question sur Blender avec la fiche source correspondante. Le modèle utilisé est `gemini-3.5-flash`.
-- Prochaine étape : enregistrer cette version vérifiée dans GitHub Desktop.
+- L'historique a été enregistré et envoyé vers `DavidSchool1203/techday-base-connaissances-v2` après connexion de GitHub CLI au compte `DavidSchool1203`.

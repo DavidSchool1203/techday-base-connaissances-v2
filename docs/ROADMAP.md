@@ -19,7 +19,7 @@ tags: [techday, plan]
 
 - [x] Préparer la lecture sans connexion depuis l'application locale.
 - [x] Déployer et tester le chatbot Gemini sans connexion.
-- [ ] Installer GitHub Desktop et enregistrer l'historique du code.
+- [x] Connecter GitHub CLI et enregistrer l'historique du code dans GitHub.
 - [ ] Construire l'enrichissement des fiches avec une vraie récupération de sources Internet.
 - [ ] Ajouter la recherche vectorielle avec `pgvector`.
 
