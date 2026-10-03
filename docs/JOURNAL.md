@@ -21,3 +21,4 @@ tags: [techday, suivi]
 - La fonction Supabase `chat-with-knowledge` cherche au plus 12 fiches locales pertinentes et utilise la clé Gemini `API_1` stockée dans les secrets Supabase. Les URL ne sont jamais envoyées à Gemini.
 - Test validé sans connexion : les 147 fiches sont affichées et le chatbot répond à une question sur Blender avec la fiche source correspondante. Le modèle utilisé est `gemini-3.5-flash`.
 - L'historique a été enregistré et envoyé vers `DavidSchool1203/techday-base-connaissances-v2` après connexion de GitHub CLI au compte `DavidSchool1203`.
+- Un guide PDF moderne a été créé pour expliquer l'architecture, les demandes à formuler, le RAG actuel et l'évolution vers `pgvector`. Sa mise en page a été rendue et vérifiée page par page.
