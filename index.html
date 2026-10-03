@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Base de connaissances TechDay</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, sans-serif; color: #172033; background: #f4f7fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #102c4d; color: white; padding: 28px 20px; }
+    header div, main { max-width: 1050px; margin: auto; }
+    h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.4rem); }
+    header p { margin: 7px 0 0; color: #d6e6f7; }
+    main { padding: 24px 20px 56px; }
+    .card { background: white; border: 1px solid #dbe4ef; border-radius: 14px; padding: 22px; box-shadow: 0 2px 10px #1c35530d; }
+    .hidden { display: none !important; }
+    label { display: block; font-weight: 650; margin: 12px 0 5px; }
+    input, textarea, button { font: inherit; }
+    input, textarea { width: 100%; border: 1px solid #b8c6d6; border-radius: 8px; padding: 10px; }
+    textarea { min-height: 105px; resize: vertical; }
+    button { background: #0969b5; border: 0; border-radius: 8px; color: white; cursor: pointer; font-weight: 650; padding: 10px 15px; }
+    button:hover { background: #075a9d; }
+    button.secondary { background: #eaf1f8; color: #173b67; }
+    .row { align-items: end; display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > * { flex: 1 1 220px; }
+    .row button { flex: 0 0 auto; }
+    .tabs { border-bottom: 1px solid #dbe4ef; display: flex; gap: 6px; margin: 24px 0 18px; }
+    .tab { background: transparent; border-radius: 8px 8px 0 0; color: #3b4a5d; padding: 11px 15px; }
+    .tab.active { background: #102c4d; color: white; }
+    .status { border-radius: 9px; margin: 16px 0; padding: 11px 13px; }
+    .status.info { background: #eaf4ff; color: #084b80; }
+    .status.error { background: #fff0f0; color: #a11c1c; }
+    .status.success { background: #edfbf1; color: #176b35; }
+    .toolbar { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin: 16px 0; flex-wrap: wrap; }
+    .toolbar input { max-width: 520px; }
+    .count { color: #516174; margin: 0; }
+    .items { display: grid; gap: 12px; }
+    article.item { border: 1px solid #dbe4ef; border-radius: 10px; padding: 16px; }
+    article.item h3 { margin: 0 0 6px; }
+    article.item p { margin: 7px 0; white-space: pre-wrap; }
+    article.item a { color: #075a9d; overflow-wrap: anywhere; }
+    .tags { color: #516174; font-size: .92rem; }
+    .answer { background: #f7faff; border-left: 4px solid #0969b5; margin-top: 16px; padding: 15px; white-space: pre-wrap; }
+    .source-list { margin: 12px 0 0; padding-left: 20px; }
+    .small { color: #516174; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <header><div><h1>Ma base de connaissances</h1><p>Consulter mes fiches et dialoguer avec elles.</p></div></header>
+  <main>
+    <section id="app">
+      <div id="status" class="status info">Chargement de la base…</div>
+      <nav class="tabs" aria-label="Fonctions de l'application">
+        <button class="tab active" type="button" data-tab="database">Base de connaissances</button>
+        <button class="tab" type="button" data-tab="chat">Chatbot</button>
+      </nav>
+
+      <section id="database-panel" class="card">
+        <h2>Base de connaissances</h2>
+        <p class="small">Recherche exacte dans les titres, notes, textes et étiquettes.</p>
+        <div class="toolbar"><input id="search" type="search" placeholder="Exemple : Blender, matériel, IA…"><p id="count" class="count"></p></div>
+        <div id="items" class="items"></div>
+      </section>
+
+      <section id="chat-panel" class="card hidden">
+        <h2>Chatbot</h2>
+        <p class="small">Le chatbot lit les fiches auxquelles tu as accès et répond avec les sources utilisées.</p>
+        <form id="chat-form">
+          <label for="question">Ta question</label>
+          <textarea id="question" required placeholder="Par exemple : quelles ressources ai-je sur Blender ?"></textarea>
+          <button id="send" type="submit">Envoyer</button>
+        </form>
+        <div id="answer" class="answer hidden"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/dist/umd/supabase.min.js"></script>
+  <script>
+    const SUPABASE_URL = "https://huaxvswzmvmfztgpyikp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_I5FvsA1kFsw7huBynyNZTw_fbEgo_Mh";
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    let allItems = [];
+
+    const $ = (id) => document.getElementById(id);
+    const setStatus = (text, kind = "info") => { const box = $("status"); box.textContent = text; box.className = `status ${kind}`; };
+    const safeText = (value) => value || "";
+    const titleFor = (item) => safeText(item.Nom) || safeText(item["Note Alex"]) || "Fiche sans titre";
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab").forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
+      $("database-panel").classList.toggle("hidden", name !== "database");
+      $("chat-panel").classList.toggle("hidden", name !== "chat");
+    }
+
+    function renderItems(items) {
+      $("count").textContent = `${items.length} fiche${items.length > 1 ? "s" : ""} affichée${items.length > 1 ? "s" : ""}`;
+      const target = $("items");
+      target.replaceChildren();
+      if (!items.length) { target.textContent = "Aucune fiche ne correspond à cette recherche."; return; }
+      for (const item of items) {
+        const article = document.createElement("article"); article.className = "item";
+        const heading = document.createElement("h3"); heading.textContent = titleFor(item); article.append(heading);
+        if (item.Texte) { const text = document.createElement("p"); text.textContent = item.Texte; article.append(text); }
+        if (item["Note Alex"]) { const note = document.createElement("p"); note.textContent = item["Note Alex"]; article.append(note); }
+        if (item["Étiquettes"]) { const tags = document.createElement("p"); tags.className = "tags"; tags.textContent = `Étiquettes : ${item["Étiquettes"]}`; article.append(tags); }
+        if (item.URL) { const link = document.createElement("a"); link.href = item.URL; link.target = "_blank"; link.rel = "noreferrer"; link.textContent = "Ouvrir la source"; article.append(link); }
+        target.append(article);
+      }
+    }
+
+    function filterItems() {
+      const query = $("search").value.trim().toLocaleLowerCase();
+      if (!query) return renderItems(allItems);
+      const words = query.split(/\s+/);
+      renderItems(allItems.filter((item) => {
+        const haystack = [item.Nom, item["Note Alex"], item.Texte, item.URL, item["Étiquettes"]].join(" ").toLocaleLowerCase();
+        return words.every((word) => haystack.includes(word));
+      }));
+    }
+
+    async function loadItems() {
+      setStatus("Chargement des fiches…");
+      const { data, error } = await client.from("base_connaissances").select("*").order("id");
+      if (error) { setStatus(`Impossible de lire la base : ${error.message}`, "error"); return; }
+      allItems = data || []; renderItems(allItems);
+      setStatus(`${allItems.length} fiches chargées.`, "success");
+    }
+
+    $("search").addEventListener("input", filterItems);
+    document.querySelectorAll(".tab").forEach((button) => button.addEventListener("click", () => switchTab(button.dataset.tab)));
+    $("chat-form").addEventListener("submit", async (event) => {
+      event.preventDefault(); const question = $("question").value.trim(); if (!question) return;
+      const send = $("send"); send.disabled = true; send.textContent = "Recherche…";
+      const answer = $("answer"); answer.classList.remove("hidden"); answer.textContent = "Le chatbot prépare une réponse…";
+      const { data, error } = await client.functions.invoke("chat-with-knowledge", { body: { question } });
+      send.disabled = false; send.textContent = "Envoyer";
+      if (error) { answer.textContent = `Erreur : ${error.message}`; return; }
+      answer.replaceChildren(); const paragraph = document.createElement("div"); paragraph.textContent = data.answer; answer.append(paragraph);
+      if (data.sources?.length) { const label = document.createElement("strong"); label.textContent = "Sources de la base :"; answer.append(document.createElement("br")); answer.append(label); const list = document.createElement("ul"); list.className = "source-list"; data.sources.forEach((source) => { const line = document.createElement("li"); line.textContent = source; list.append(line); }); answer.append(list); }
+    });
+    loadItems();
+  </script>
+</body>
+</html>
