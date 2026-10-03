@@ -33,6 +33,7 @@ styles.add(ParagraphStyle(name='GuideH1', fontName='GuideBold', fontSize=18, lea
 styles.add(ParagraphStyle(name='GuideH2', fontName='GuideBold', fontSize=11.5, leading=14, textColor=HexColor(BLUE), spaceBefore=8, spaceAfter=4, keepWithNext=True))
 styles.add(ParagraphStyle(name='GuideBody', fontName='Guide', fontSize=10, leading=13.5, textColor=HexColor(INK), spaceAfter=6))
 styles.add(ParagraphStyle(name='GuideSmall', fontName='Guide', fontSize=8.45, leading=10.7, textColor=HexColor(INK)))
+styles.add(ParagraphStyle(name='GuideSmallWhite', fontName='Guide', fontSize=8.45, leading=10.7, textColor=colors.white))
 styles.add(ParagraphStyle(name='GuideTiny', fontName='Guide', fontSize=7.9, leading=9.7, textColor=HexColor(INK)))
 styles.add(ParagraphStyle(name='GuideBullet', fontName='Guide', fontSize=9.8, leading=12.7, textColor=HexColor(INK), leftIndent=12, firstLineIndent=-8, spaceAfter=3))
 styles.add(ParagraphStyle(name='GuideQuote', fontName='Guide', fontSize=16, leading=21, textColor=HexColor(GREEN), spaceBefore=15, spaceAfter=14))
@@ -131,53 +132,59 @@ def label(draw, x, y, text, color):
     draw.text((x+10, y+5), text, font=font, fill=color)
 
 def make_map():
-    image = PILImage.new('RGB', (1800, 1210), '#F8FBFD')
+    image = PILImage.new('RGB', (1800, 1320), '#F8FBFD')
     draw = ImageDraw.Draw(image)
     purple = '#7C3AED'
+    orange = '#C56A00'
     draw.text((58, 34), 'La carte des outils', font=hexfont(42, True), fill=NAVY)
-    draw.text((58, 88), 'Chaque flèche explique ce qui passe d un outil à l autre.', font=hexfont(21), fill=MUTED)
+    draw.text((58, 88), 'Trois moments distincts : préparer, ajouter les données, puis utiliser l application.', font=hexfont(21), fill=MUTED)
     draw.rounded_rectangle((58, 136, 1742, 194), radius=18, fill='white', outline=LINE, width=2)
-    draw.line((90, 165, 155, 165), fill=GREEN, width=6); draw.text((175, 150), 'données des fiches', font=hexfont(17, True), fill=GREEN)
-    draw.line((505, 165, 570, 165), fill=BLUE, width=6); draw.text((590, 150), 'question et réponse du chatbot', font=hexfont(17, True), fill=BLUE)
-    dashed_link(draw, (1060,165), (1125,165), purple); draw.text((1145,150), 'aide de ChatGPT', font=hexfont(17, True), fill=purple)
+    draw.line((90, 165, 155, 165), fill=GREEN, width=6); draw.text((175, 150), 'fiches et données', font=hexfont(17, True), fill=GREEN)
+    draw.line((480, 165, 545, 165), fill=BLUE, width=6); draw.text((565, 150), 'question et réponse', font=hexfont(17, True), fill=BLUE)
+    draw.line((935, 165, 1000, 165), fill=orange, width=6); draw.text((1020, 150), 'création de la clé API', font=hexfont(17, True), fill=orange)
+    dashed_link(draw, (1410,165), (1475,165), purple); draw.text((1495,150), 'aide de ChatGPT', font=hexfont(17, True), fill=purple)
 
-    # Les outils qui font tourner l application
-    draw.text((58, 220), '1. L application qui tourne', font=hexfont(22, True), fill=NAVY)
-    role_box(draw, 70, 270, 325, 185, 'CSV', 'Les fiches de départ', GREEN, '147 lignes à importer.')
-    role_box(draw, 720, 245, 395, 230, 'Supabase : base', 'Garde les fiches', NAVY, 'Elle donne les fiches à la page HTML.')
-    role_box(draw, 1405, 270, 325, 185, 'HTML local', 'L écran que tu utilises', BLUE, 'Deux onglets : fiches et chatbot.')
-    arrow_path(draw, [(395, 360), (720, 360)], GREEN)
-    label(draw, 477, 315, 'import des fiches', GREEN)
-    arrow_path(draw, [(1115, 360), (1405, 360)], GREEN)
-    label(draw, 1188, 315, 'lecture des fiches', GREEN)
+    # 1. Préparation avec ChatGPT
+    draw.text((58, 230), '1. Préparer le projet avec ChatGPT', font=hexfont(23, True), fill=NAVY)
+    role_box(draw, 70, 280, 320, 170, 'AGENTS.md', 'Les règles du projet', GREEN, 'Il indique quoi ne pas oublier.')
+    role_box(draw, 690, 255, 420, 220, 'ChatGPT', 'Le guide de travail', purple, 'Il analyse, explique, crée le code, teste et prépare les versions.')
+    role_box(draw, 1410, 280, 320, 170, 'GitHub', 'L historique du code', GREEN, 'Il garde les versions du code et des documents.')
+    dashed_link(draw, (390, 365), (690, 365), purple); label(draw, 470, 320, 'lit les règles', purple)
+    dashed_link(draw, (1110, 365), (1410, 365), purple); label(draw, 1170, 320, 'prépare les versions', purple)
+    draw.rounded_rectangle((340, 495, 1460, 550), radius=16, fill='#F4EFFF', outline=purple, width=2)
+    draw.text((365, 512), 'ChatGPT t accompagne aussi pour analyser le CSV, configurer Supabase, créer le HTML et préparer Google AI Studio.', font=hexfont(16, True), fill=purple)
 
-    draw.text((58, 535), '2. Le trajet d une question au chatbot', font=hexfont(22, True), fill=NAVY)
-    role_box(draw, 655, 650, 455, 210, 'Fonction Supabase', 'Prépare la réponse', NAVY, 'Elle cherche les fiches, garde API_1 privée et appelle Gemini.')
-    role_box(draw, 1405, 680, 325, 185, 'Gemini', 'Rédige la réponse', BLUE, 'Il lit la question et les fiches retenues.')
-    arrow_path(draw, [(1480, 455), (1290, 545), (1110, 705)], BLUE)
-    label(draw, 1200, 545, 'question', BLUE)
-    arrow_path(draw, [(1110, 725), (1405, 725)], BLUE)
-    label(draw, 1165, 680, 'question + fiches utiles', BLUE)
-    arrow_path(draw, [(1405, 820), (1110, 820)], BLUE)
-    label(draw, 1180, 840, 'réponse de Gemini', BLUE)
-    arrow_path(draw, [(1110, 850), (1300, 955), (1505, 455)], BLUE)
-    label(draw, 1290, 940, 'réponse + sources', BLUE)
+    # 2. Import et clé
+    draw.text((58, 610), '2. Mettre les fiches et la clé en place', font=hexfont(23, True), fill=NAVY)
+    role_box(draw, 70, 660, 320, 180, 'CSV', 'Les fiches de départ', GREEN, '147 lignes à importer. Le fichier original reste intact.')
+    role_box(draw, 675, 635, 450, 230, 'Supabase', 'Base + secrets', NAVY, 'La base garde les fiches. Les secrets gardent API_1, la clé privée.')
+    role_box(draw, 1410, 660, 320, 180, 'Google AI Studio', 'Tu crées la clé API', orange, 'La clé est ensuite ajoutée une seule fois dans les secrets Supabase.')
+    arrow_path(draw, [(390, 750), (675, 750)], GREEN)
+    label(draw, 460, 705, 'importer les fiches', GREEN)
+    arrow_path(draw, [(1410, 750), (1125, 750)], orange)
+    label(draw, 1160, 705, 'ajouter API_1', orange)
 
-    # Les outils de préparation et le rôle transversal de ChatGPT
-    draw.text((58, 930), '3. Les outils de préparation et de suivi', font=hexfont(22, True), fill=NAVY)
-    role_box(draw, 70, 980, 315, 170, 'AGENTS.md', 'Les règles du projet', GREEN, 'Il guide les décisions et la mémoire.')
-    role_box(draw, 505, 980, 430, 170, 'ChatGPT', 'Le guide de travail', purple, 'Il analyse, explique, crée le code, teste et prépare les versions.')
-    role_box(draw, 1055, 980, 330, 170, 'GitHub', 'L historique du code', GREEN, 'Il garde le HTML, les documents et les versions.')
-    dashed_link(draw, (385, 1065), (505, 1065), purple); label(draw, 390, 1025, 'lit les règles', purple)
-    dashed_link(draw, (505, 1115), (325, 455), purple); label(draw, 300, 710, 'analyse sans modifier', purple)
-    dashed_link(draw, (720, 980), (875, 475), purple); label(draw, 745, 565, 'aide à configurer', purple)
-    dashed_link(draw, (935, 1065), (1055, 1065), purple); label(draw, 930, 1025, 'prépare le commit', purple)
-    dashed_link(draw, (805, 980), (1510, 455), purple); label(draw, 1110, 590, 'aide à créer et tester', purple)
-    draw.text((70, 1170), 'ChatGPT est relié à tous les outils : il aide à les préparer, mais il ne remplace pas tes décisions ni tes accès.', font=hexfont(17, True), fill=purple)
+    # 3. Fonctionnement de l application
+    draw.text((58, 915), '3. Utiliser l application locale', font=hexfont(23, True), fill=NAVY)
+    role_box(draw, 70, 970, 340, 200, 'HTML local', 'L écran que tu utilises', BLUE, 'Onglet fiches : consulter. Onglet chatbot : poser une question.')
+    role_box(draw, 680, 945, 440, 245, 'Fonction Supabase', 'Cherche et protège', NAVY, 'Elle cherche les fiches, lit API_1 sans la montrer, puis appelle l IA Google.')
+    role_box(draw, 1410, 970, 320, 200, 'IA Google via API', 'Prépare la réponse', BLUE, 'Elle reçoit seulement la question et les fiches utiles.')
+    arrow_path(draw, [(900, 865), (900, 945)], GREEN)
+    label(draw, 920, 885, 'fiches trouvées', GREEN)
+    arrow_path(draw, [(410, 1030), (680, 1030)], BLUE)
+    label(draw, 475, 985, 'question', BLUE)
+    arrow_path(draw, [(1120, 1030), (1410, 1030)], BLUE)
+    label(draw, 1170, 985, 'question + fiches', BLUE)
+    arrow_path(draw, [(1410, 1120), (1120, 1120)], BLUE)
+    label(draw, 1190, 1135, 'réponse IA', BLUE)
+    arrow_path(draw, [(680, 1120), (410, 1120)], BLUE)
+    label(draw, 465, 1135, 'réponse + sources', BLUE)
+    draw.text((70, 1240), 'La clé ne va jamais dans le HTML ni dans GitHub : elle va de Google AI Studio vers les secrets Supabase.', font=hexfont(17, True), fill=orange)
+    draw.text((70, 1275), 'ChatGPT aide à construire ce parcours ; lorsque tu poses une question, le parcours réel est HTML → Supabase → IA Google → Supabase → HTML.', font=hexfont(17, True), fill=purple)
     image.save(MAP)
 
 def three_column(title_text, request, outcome, check):
-    data = [[p('<b>' + title_text + '</b>', 'GuideSmall'), '', ''], [p('<b>Je demande</b><br/>'+request, 'GuideTiny'), p('<b>J obtiens</b><br/>'+outcome, 'GuideTiny'), p('<b>Je vérifie</b><br/>'+check, 'GuideTiny')]]
+    data = [[p('<b>' + title_text + '</b>', 'GuideSmallWhite'), '', ''], [p('<b>Je demande</b><br/>'+request, 'GuideTiny'), p('<b>J obtiens</b><br/>'+outcome, 'GuideTiny'), p('<b>Je vérifie</b><br/>'+check, 'GuideTiny')]]
     table = Table(data, colWidths=[59.3*mm,59.3*mm,59.4*mm])
     table.setStyle(TableStyle([
         ('SPAN',(0,0),(-1,0)), ('BACKGROUND',(0,0),(-1,0),HexColor(NAVY)), ('TEXTCOLOR',(0,0),(-1,0),colors.white),
@@ -193,7 +200,7 @@ def six_steps():
         ('2. Lire le CSV', '« Analyse le CSV sans le modifier. Compte les lignes et les champs manquants. »', 'Un inventaire des données à importer.', 'Le CSV original reste intact.'),
         ('3. Organiser Supabase', '« Crée ou vérifie la table de fiches. Ne supprime aucune donnée. »', 'Une table prête à recevoir les fiches.', 'Les 147 fiches sont présentes.'),
         ('4. Créer le HTML', '« Crée une page avec Base de connaissances et Chatbot. »', 'Une application locale simple à ouvrir.', 'Les fiches s affichent et se filtrent.'),
-        ('5. Connecter l IA', '« Mets la clé Gemini dans les secrets Supabase, jamais dans le HTML. »', 'Un chatbot qui utilise la fonction Supabase.', 'Une question retourne une réponse et une source.'),
+        ('5. Connecter l IA', '« Crée une clé API dans Google AI Studio, puis mets-la dans les secrets Supabase, jamais dans le HTML. »', 'Un chatbot qui utilise la fonction Supabase.', 'Une question retourne une réponse et une source.'),
         ('6. Tester et garder une version', '« Teste le parcours puis crée un commit clair et envoie-le sur GitHub. »', 'Une version vérifiée dans l historique.', 'GitHub contient le dernier commit.'),
     ]
     story=[]
@@ -212,13 +219,13 @@ def build():
     # Page 1
     s += title('Mon projet TechDay', 'Un guide personnel pour comprendre le système et savoir quoi demander')
     s += [p('« Je veux consulter mes fiches et interroger un chatbot qui répond à partir de ma base. »', 'GuideQuote'), h('Le résultat visible')]
-    result = Table([[p('<b>Dans le navigateur</b><br/>Une application locale avec deux onglets : <b>Base de connaissances</b> et <b>Chatbot</b>.','GuideBody'), p('<b>Dans Supabase</b><br/>Les fiches, la fonction du chatbot et la clé Gemini gardée secrète.','GuideBody'), p('<b>Dans GitHub</b><br/>Les versions du code et les documents de suivi.','GuideBody')]], colWidths=[59.3*mm]*3)
+    result = Table([[p('<b>Dans le navigateur</b><br/>Une application locale avec deux onglets : <b>Base de connaissances</b> et <b>Chatbot</b>.','GuideBody'), p('<b>Dans Supabase</b><br/>Les fiches, la fonction du chatbot et la clé API Google gardée secrète.','GuideBody'), p('<b>Dans GitHub</b><br/>Les versions du code et les documents de suivi.','GuideBody')]], colWidths=[59.3*mm]*3)
     result.setStyle(TableStyle([('BACKGROUND',(0,0),(0,0),HexColor(PALE_BLUE)),('BACKGROUND',(1,0),(1,0),HexColor(PALE_GREEN)),('BACKGROUND',(2,0),(2,0),HexColor('#F2F4F8')),('GRID',(0,0),(-1,-1),.5,HexColor(LINE)),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),10),('RIGHTPADDING',(0,0),(-1,-1),10),('TOPPADDING',(0,0),(-1,-1),11),('BOTTOMPADDING',(0,0),(-1,-1),11)])); s += [result]
     s += [h('Avant chaque séance',2), bullet('<b>1.</b> Demander un plan avant de demander du code.'), bullet('<b>2.</b> Demander quelles décisions ou questions sont importantes.'), bullet('<b>3.</b> Avancer une étape, vérifier le résultat, puis seulement continuer.'), h('La règle simple',2), p('ChatGPT peut préparer, expliquer, écrire du code et tester. Je garde les décisions, les accès à mes comptes et la vérification finale.')] 
     s.append(PageBreak())
     # Page 2
     s += title('La carte des outils', 'Comprendre les liaisons en un regard')
-    s += [Image(str(MAP), width=178*mm, height=119.6*mm), Spacer(1,5), p('<b>Les flèches vertes :</b> les fiches partent du CSV, sont importées dans Supabase, puis sont lues dans le HTML.<br/><b>Les flèches bleues :</b> une question part du HTML, passe par la fonction Supabase, est donnée à Gemini avec des fiches utiles, puis revient au HTML avec une réponse et ses sources.', 'GuideSmall'), p('<b>Les traits violets :</b> ChatGPT ne participe pas à la réponse du chatbot. Il est relié à tous les outils pendant la construction : il lit AGENTS.md, analyse le CSV, aide à configurer Supabase, crée et teste le HTML, puis prépare la version GitHub.', 'GuideSmall')]
+    s += [Image(str(MAP), width=178*mm, height=130.6*mm), Spacer(1,5), p('<b>Avant d utiliser l application :</b> ChatGPT t aide à lire les règles, analyser le CSV, préparer Supabase, créer le HTML et enregistrer une version dans GitHub.<br/><b>Pour la clé :</b> tu la crées dans Google AI Studio et tu l ajoutes dans les secrets Supabase. Elle ne va jamais dans le HTML.', 'GuideSmall'), p('<b>Quand tu poses une question :</b> le HTML appelle la fonction Supabase. Elle cherche les fiches, utilise la clé API privée pour appeler l IA Google, puis renvoie la réponse et les sources au HTML.', 'GuideSmall')]
     s.append(PageBreak())
     # Page 3
     s += title('Travailler avec ChatGPT', 'Ce qui peut être délégué et ce que je garde en main')
@@ -231,9 +238,9 @@ def build():
     s.append(PageBreak())
     # Page 5
     s += title('Comprendre le chatbot RAG', 'Une bibliothèque, pas une réponse inventée')
-    s += [p('Imagine une bibliothèque. Tu poses une question au bibliothécaire. Il cherche des fiches utiles, les donne à Gemini, puis Gemini rédige une réponse avec les références trouvées.'), h('Le chemin actuel',2)]
-    rag = Table([[p('<b>1. Question</b><br/>Je demande par exemple : « Que sais-tu sur Blender ? »','GuideSmall'),p('<b>2. Recherche</b><br/>Supabase cherche les mots présents dans les fiches.','GuideSmall'),p('<b>3. Lecture</b><br/>Gemini reçoit au plus 12 fiches trouvées.','GuideSmall'),p('<b>4. Réponse</b><br/>Le chatbot répond et affiche les fiches utilisées.','GuideSmall')]], colWidths=[44.5*mm]*4)
-    rag.setStyle(TableStyle([('BACKGROUND',(0,0),(0,0),HexColor(PALE_BLUE)),('BACKGROUND',(1,0),(1,0),HexColor(PALE_GREEN)),('BACKGROUND',(2,0),(2,0),HexColor(PALE_BLUE)),('BACKGROUND',(3,0),(3,0),HexColor(PALE_GREEN)),('GRID',(0,0),(-1,-1),.5,HexColor(LINE)),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8)])); s += [rag, h('Ce qui fonctionne aujourd hui',2), bullet('Le chatbot répond à partir des fiches trouvées et cite leurs titres.'), bullet('La clé Gemini reste dans Supabase. Les URL des fiches ne sont pas envoyées à Gemini.'), h('Ce qui viendra ensuite : pgvector',2), p('Le RAG actuel cherche surtout les mêmes mots. Avec pgvector, il cherchera aussi le <b>sens</b>. Une question sur « animation 3D » pourra trouver une fiche sur Blender, même si le mot Blender n est pas écrit dans la question.')]
+    s += [p('Imagine une bibliothèque. Tu poses une question au bibliothécaire. Il cherche des fiches utiles, les donne à l IA Google par l API, puis elle rédige une réponse avec les références trouvées.'), h('Le chemin actuel',2)]
+    rag = Table([[p('<b>1. Question</b><br/>Je demande par exemple : « Que sais-tu sur Blender ? »','GuideSmall'),p('<b>2. Recherche</b><br/>Supabase cherche les mots présents dans les fiches.','GuideSmall'),p('<b>3. Lecture</b><br/>L IA Google reçoit au plus 12 fiches trouvées.','GuideSmall'),p('<b>4. Réponse</b><br/>Le chatbot répond et affiche les fiches utilisées.','GuideSmall')]], colWidths=[44.5*mm]*4)
+    rag.setStyle(TableStyle([('BACKGROUND',(0,0),(0,0),HexColor(PALE_BLUE)),('BACKGROUND',(1,0),(1,0),HexColor(PALE_GREEN)),('BACKGROUND',(2,0),(2,0),HexColor(PALE_BLUE)),('BACKGROUND',(3,0),(3,0),HexColor(PALE_GREEN)),('GRID',(0,0),(-1,-1),.5,HexColor(LINE)),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8)])); s += [rag, h('Ce qui fonctionne aujourd hui',2), bullet('Le chatbot répond à partir des fiches trouvées et cite leurs titres.'), bullet('La clé API Google reste dans Supabase. Les URL des fiches ne sont pas envoyées à l IA Google.'), h('Ce qui viendra ensuite : pgvector',2), p('Le RAG actuel cherche surtout les mêmes mots. Avec pgvector, il cherchera aussi le <b>sens</b>. Une question sur « animation 3D » pourra trouver une fiche sur Blender, même si le mot Blender n est pas écrit dans la question.')]
     s.append(PageBreak())
     # Page 6
     s += title('Rendre l outil plus intelligent', 'Les améliorations qui comptent vraiment')
@@ -241,7 +248,7 @@ def build():
     upgrades.setStyle(TableStyle([('BACKGROUND',(0,0),(0,0),HexColor(PALE_GREEN)),('BACKGROUND',(1,0),(1,0),HexColor(PALE_BLUE)),('BACKGROUND',(2,0),(2,0),HexColor('#F2F4F8')),('GRID',(0,0),(-1,-1),.5,HexColor(LINE)),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),10),('RIGHTPADDING',(0,0),(-1,-1),10),('TOPPADDING',(0,0),(-1,-1),10),('BOTTOMPADDING',(0,0),(-1,-1),10)])); s += [upgrades, h('Les outils à utiliser',2)]
     s += three_column('Pour améliorer le RAG', '« Ajoute pgvector. Crée des embeddings pour le titre, le texte et les étiquettes. Combine recherche par mots et recherche par le sens. »', 'Une recherche plus tolérante aux synonymes et aux formulations naturelles.', 'Une question formulée autrement retrouve une fiche pertinente.')
     s += three_column('Pour compléter les fiches', '« Propose un agent qui enrichit une fiche uniquement avec des sources vérifiables et enregistre la source. »', 'Des fiches plus complètes, sans contenu inventé.', 'Chaque ajout indique une source consultable.')
-    s += [h('Règle de sécurité',2), p('Une clé Gemini est un accès privé. Elle reste dans les secrets Supabase. GitHub reçoit le code, pas les mots de passe ni les clés secrètes.')]
+    s += [h('Règle de sécurité',2), p('Une clé API Google est un accès privé. Elle reste dans les secrets Supabase. GitHub reçoit le code, pas les mots de passe ni les clés secrètes.')]
     s.append(PageBreak())
     # Page 7
     s += title('Modèles de demandes', 'Des phrases prêtes à copier pour chaque séance')
