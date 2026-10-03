@@ -131,56 +131,60 @@ def label(draw, x, y, text, color):
     draw.rounded_rectangle((x, y, x+width, y+27), radius=12, fill='white', outline=color, width=2)
     draw.text((x+10, y+5), text, font=font, fill=color)
 
+def story_box(draw, x, y, width, height, name, purpose, action, color):
+    draw.rounded_rectangle((x, y, x+width, y+height), radius=22, fill='white', outline=color, width=4)
+    draw.rounded_rectangle((x, y, x+width, y+48), radius=22, fill=color)
+    draw.rectangle((x, y+25, x+width, y+48), fill=color)
+    draw.text((x+16, y+8), name, font=hexfont(28, True), fill='white')
+    draw.text((x+16, y+64), 'BUT', font=hexfont(17, True), fill=MUTED)
+    for i, line in enumerate(wrap(draw, purpose, width-32, hexfont(20, True))[:1]):
+        draw.text((x+16, y+86+i*20), line, font=hexfont(20, True), fill=INK)
+    draw.text((x+16, y+117), 'CE QUI A ÉTÉ FAIT', font=hexfont(17, True), fill=MUTED)
+    for i, line in enumerate(wrap(draw, action, width-32, hexfont(18))[:2]):
+        draw.text((x+16, y+140+i*21), line, font=hexfont(18), fill=INK)
+
 def make_map():
-    image = PILImage.new('RGB', (1800, 1320), '#F8FBFD')
+    image = PILImage.new('RGB', (1800, 1350), '#F8FBFD')
     draw = ImageDraw.Draw(image)
     purple = '#7C3AED'
     orange = '#C56A00'
-    draw.text((58, 34), 'La carte des outils', font=hexfont(42, True), fill=NAVY)
-    draw.text((58, 88), 'Trois moments distincts : préparer, ajouter les données, puis utiliser l application.', font=hexfont(21), fill=MUTED)
+    draw.text((58, 34), 'Vue d ensemble : ce qui a été fait', font=hexfont(42, True), fill=NAVY)
+    draw.text((58, 88), 'Chaque carte indique le but de l outil et son rôle dans la construction du projet.', font=hexfont(21), fill=MUTED)
     draw.rounded_rectangle((58, 136, 1742, 194), radius=18, fill='white', outline=LINE, width=2)
-    draw.line((90, 165, 155, 165), fill=GREEN, width=6); draw.text((175, 150), 'fiches et données', font=hexfont(17, True), fill=GREEN)
-    draw.line((480, 165, 545, 165), fill=BLUE, width=6); draw.text((565, 150), 'question et réponse', font=hexfont(17, True), fill=BLUE)
-    draw.line((935, 165, 1000, 165), fill=orange, width=6); draw.text((1020, 150), 'création de la clé API', font=hexfont(17, True), fill=orange)
-    dashed_link(draw, (1410,165), (1475,165), purple); draw.text((1495,150), 'aide de ChatGPT', font=hexfont(17, True), fill=purple)
+    draw.line((90, 165, 155, 165), fill=GREEN, width=6); draw.text((175, 150), 'documents et fiches', font=hexfont(17, True), fill=GREEN)
+    dashed_link(draw, (495,165), (560,165), purple); draw.text((580,150), 'travail réalisé avec ChatGPT', font=hexfont(17, True), fill=purple)
+    draw.line((1130, 165, 1195, 165), fill=orange, width=6); draw.text((1215, 150), 'clé API privée', font=hexfont(17, True), fill=orange)
 
-    # 1. Préparation avec ChatGPT
-    draw.text((58, 230), '1. Préparer le projet avec ChatGPT', font=hexfont(23, True), fill=NAVY)
-    role_box(draw, 70, 280, 320, 170, 'AGENTS.md', 'Les règles du projet', GREEN, 'Il indique quoi ne pas oublier.')
-    role_box(draw, 690, 255, 420, 220, 'ChatGPT', 'Le guide de travail', purple, 'Il analyse, explique, crée le code, teste et prépare les versions.')
-    role_box(draw, 1410, 280, 320, 170, 'GitHub', 'L historique du code', GREEN, 'Il garde les versions du code et des documents.')
-    dashed_link(draw, (390, 365), (690, 365), purple); label(draw, 470, 320, 'lit les règles', purple)
-    dashed_link(draw, (1110, 365), (1410, 365), purple); label(draw, 1170, 320, 'prépare les versions', purple)
-    draw.rounded_rectangle((340, 495, 1460, 550), radius=16, fill='#F4EFFF', outline=purple, width=2)
-    draw.text((365, 512), 'ChatGPT t accompagne aussi pour analyser le CSV, configurer Supabase, créer le HTML et préparer Google AI Studio.', font=hexfont(16, True), fill=purple)
+    draw.text((70, 238), 'Ce que tu as donné à ChatGPT', font=hexfont(22, True), fill=NAVY)
+    draw.text((690, 238), 'Le travail fait avec ChatGPT', font=hexfont(22, True), fill=NAVY)
+    draw.text((1400, 238), 'Les résultats et services', font=hexfont(22, True), fill=NAVY)
 
-    # 2. Import et clé
-    draw.text((58, 610), '2. Mettre les fiches et la clé en place', font=hexfont(23, True), fill=NAVY)
-    role_box(draw, 70, 660, 320, 180, 'CSV', 'Les fiches de départ', GREEN, '147 lignes à importer. Le fichier original reste intact.')
-    role_box(draw, 675, 635, 450, 230, 'Supabase', 'Base + secrets', NAVY, 'La base garde les fiches. Les secrets gardent API_1, la clé privée.')
-    role_box(draw, 1410, 660, 320, 180, 'Google AI Studio', 'Tu crées la clé API', orange, 'La clé est ensuite ajoutée une seule fois dans les secrets Supabase.')
-    arrow_path(draw, [(390, 750), (675, 750)], GREEN)
-    label(draw, 460, 705, 'importer les fiches', GREEN)
-    arrow_path(draw, [(1410, 750), (1125, 750)], orange)
-    label(draw, 1160, 705, 'ajouter API_1', orange)
+    story_box(draw, 70, 290, 390, 195, 'Ton objectif', 'Dire ce que doit faire l application.', 'Tu as demandé une base de fiches avec un chatbot.', BLUE)
+    story_box(draw, 70, 525, 390, 195, 'base de connaissance.csv', 'Fournir les 147 fiches de départ.', 'Envoyé à ChatGPT pour préparer l import Supabase.', GREEN)
+    story_box(draw, 70, 760, 390, 195, 'AGENTS.md', 'Donner les règles du projet.', 'Envoyé à ChatGPT pour guider le travail.', GREEN)
+    story_box(draw, 670, 510, 490, 260, 'ChatGPT', 'T aider à construire et comprendre.', 'Lecture des documents, code, Supabase, tests, explications et préparation de GitHub.', purple)
+    story_box(draw, 1010, 285, 330, 190, 'Google AI Studio', 'Créer une clé API pour le chatbot.', 'Tu as créé la clé. Elle va dans les secrets Supabase.', orange)
+    story_box(draw, 1400, 285, 330, 190, 'Supabase', 'Garder les fiches et la clé API.', 'ChatGPT l a configuré : import des fiches et chatbot.', NAVY)
+    story_box(draw, 1400, 525, 330, 195, 'HTML local', 'Afficher les fiches et le chatbot.', 'Créé par ChatGPT. Il lit Supabase et affiche les résultats.', BLUE)
+    story_box(draw, 1400, 755, 330, 195, 'GitHub', 'Garder l historique du projet.', 'ChatGPT y a envoyé le code et les documents vérifiés.', GREEN)
 
-    # 3. Fonctionnement de l application
-    draw.text((58, 915), '3. Utiliser l application locale', font=hexfont(23, True), fill=NAVY)
-    role_box(draw, 70, 970, 340, 200, 'HTML local', 'L écran que tu utilises', BLUE, 'Onglet fiches : consulter. Onglet chatbot : poser une question.')
-    role_box(draw, 680, 945, 440, 245, 'Fonction Supabase', 'Cherche et protège', NAVY, 'Elle cherche les fiches, lit API_1 sans la montrer, puis appelle l IA Google.')
-    role_box(draw, 1410, 970, 320, 200, 'IA Google via API', 'Prépare la réponse', BLUE, 'Elle reçoit seulement la question et les fiches utiles.')
-    arrow_path(draw, [(900, 865), (900, 945)], GREEN)
-    label(draw, 920, 885, 'fiches trouvées', GREEN)
-    arrow_path(draw, [(410, 1030), (680, 1030)], BLUE)
-    label(draw, 475, 985, 'question', BLUE)
-    arrow_path(draw, [(1120, 1030), (1410, 1030)], BLUE)
-    label(draw, 1170, 985, 'question + fiches', BLUE)
-    arrow_path(draw, [(1410, 1120), (1120, 1120)], BLUE)
-    label(draw, 1190, 1135, 'réponse IA', BLUE)
-    arrow_path(draw, [(680, 1120), (410, 1120)], BLUE)
-    label(draw, 465, 1135, 'réponse + sources', BLUE)
-    draw.text((70, 1240), 'La clé ne va jamais dans le HTML ni dans GitHub : elle va de Google AI Studio vers les secrets Supabase.', font=hexfont(17, True), fill=orange)
-    draw.text((70, 1275), 'ChatGPT aide à construire ce parcours ; lorsque tu poses une question, le parcours réel est HTML → Supabase → IA Google → Supabase → HTML.', font=hexfont(17, True), fill=purple)
+    arrow_path(draw, [(460, 380), (670, 570)], purple); label(draw, 485, 425, 'ta demande', purple)
+    arrow_path(draw, [(460, 615), (670, 635)], GREEN); label(draw, 490, 575, 'les fiches', GREEN)
+    arrow_path(draw, [(460, 850), (670, 710)], GREEN); label(draw, 485, 765, 'les règles', GREEN)
+    arrow_path(draw, [(1160, 590), (1280, 590), (1280, 500), (1400, 440)], purple); label(draw, 1190, 545, 'configure + importe', purple)
+    arrow_path(draw, [(1160, 645), (1400, 610)], purple); label(draw, 1200, 620, 'crée la page', purple)
+    arrow_path(draw, [(1160, 720), (1400, 845)], purple); label(draw, 1190, 755, 'enregistre les versions', purple)
+    arrow_path(draw, [(1340, 380), (1400, 380)], orange); label(draw, 1240, 335, 'clé API → secrets', orange)
+
+    draw.rounded_rectangle((70, 1095, 1730, 1240), radius=20, fill='#F1F7FB', outline=LINE, width=2)
+    draw.text((100, 1122), 'Quand tu ouvres l application', font=hexfont(20, True), fill=NAVY)
+    draw.text((100, 1160), 'HTML local', font=hexfont(18, True), fill=BLUE)
+    arrow_path(draw, [(300, 1175), (650, 1175)], BLUE); label(draw, 385, 1138, 'questions et affichage', BLUE)
+    draw.text((680, 1160), 'Supabase', font=hexfont(18, True), fill=NAVY)
+    arrow_path(draw, [(860, 1175), (1230, 1175)], GREEN); label(draw, 940, 1138, 'fiches et réponses', GREEN)
+    draw.text((1260, 1160), 'Chatbot visible dans le HTML', font=hexfont(18, True), fill=BLUE)
+    draw.text((100, 1205), 'ChatGPT, GitHub, le CSV et AGENTS.md ont servi à construire le projet : ils ne sont pas utilisés à chaque question.', font=hexfont(16, True), fill=MUTED)
+    draw.text((70, 1290), 'La clé API reste dans Supabase. Elle ne se trouve ni dans le fichier HTML, ni dans le CSV, ni dans GitHub.', font=hexfont(17, True), fill=orange)
     image.save(MAP)
 
 def three_column(title_text, request, outcome, check):
@@ -225,7 +229,7 @@ def build():
     s.append(PageBreak())
     # Page 2
     s += title('La carte des outils', 'Comprendre les liaisons en un regard')
-    s += [Image(str(MAP), width=178*mm, height=130.6*mm), Spacer(1,5), p('<b>Avant d utiliser l application :</b> ChatGPT t aide à lire les règles, analyser le CSV, préparer Supabase, créer le HTML et enregistrer une version dans GitHub.<br/><b>Pour la clé :</b> tu la crées dans Google AI Studio et tu l ajoutes dans les secrets Supabase. Elle ne va jamais dans le HTML.', 'GuideSmall'), p('<b>Quand tu poses une question :</b> le HTML appelle la fonction Supabase. Elle cherche les fiches, utilise la clé API privée pour appeler l IA Google, puis renvoie la réponse et les sources au HTML.', 'GuideSmall')]
+    s += [Image(str(MAP), width=178*mm, height=133.5*mm), Spacer(1,5), p('<b>Lire la carte :</b> à gauche, ce que tu as donné à ChatGPT. Au centre, ce qu il a fait avec toi. À droite, les outils qu il a configurés ou créés. Les flèches indiquent le lien concret entre eux.', 'GuideSmall'), p('<b>À retenir :</b> ChatGPT est central pendant la construction. Quand tu ouvres ensuite l application, seuls le HTML et Supabase sont utilisés pour afficher les fiches et le chatbot. Google AI Studio a servi à créer la clé API, qui reste dans Supabase.', 'GuideSmall')]
     s.append(PageBreak())
     # Page 3
     s += title('Travailler avec ChatGPT', 'Ce qui peut être délégué et ce que je garde en main')
