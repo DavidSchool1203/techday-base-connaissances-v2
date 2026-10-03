@@ -22,3 +22,4 @@ tags: [techday, suivi]
 - Test validé sans connexion : les 147 fiches sont affichées et le chatbot répond à une question sur Blender avec la fiche source correspondante. Le modèle utilisé est `gemini-3.5-flash`.
 - L'historique a été enregistré et envoyé vers `DavidSchool1203/techday-base-connaissances-v2` après connexion de GitHub CLI au compte `DavidSchool1203`.
 - Le guide PDF a été refondu pour devenir un parcours personnel de 7 pages : but du projet, carte des outils, rôle de ChatGPT et du porteur du projet, six étapes de construction, RAG, améliorations et modèles de demandes. La mise en page a été rendue et vérifiée page par page.
+- La carte des outils a été améliorée : elle distingue le trajet réel des données et du chatbot des liens de préparation avec ChatGPT. Chaque liaison indique désormais ce qui circule ou l aide apportée.

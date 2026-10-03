@@ -93,35 +93,87 @@ def arrow(draw, start, end, color):
     b = (end[0]-length*cos(angle+pi/7), end[1]-length*sin(angle+pi/7))
     draw.polygon([end,a,b], fill=color)
 
+def role_box(draw, x, y, width, height, name, role, color, detail=''):
+    draw.rounded_rectangle((x, y, x+width, y+height), radius=22, fill='white', outline=color, width=4)
+    draw.rounded_rectangle((x, y, x+width, y+50), radius=22, fill=color)
+    draw.rectangle((x, y+25, x+width, y+50), fill=color)
+    draw.text((x+16, y+12), name, font=hexfont(23, True), fill='white')
+    for i, line in enumerate(wrap(draw, role, width-32, hexfont(17, True))[:2]):
+        draw.text((x+16, y+68+i*21), line, font=hexfont(17, True), fill=INK)
+    if detail:
+        for i, line in enumerate(wrap(draw, detail, width-32, hexfont(15))[:2]):
+            draw.text((x+16, y+118+i*19), line, font=hexfont(15), fill=MUTED)
+
+def arrow_path(draw, points, color, width=5):
+    for a, b in zip(points, points[1:]):
+        draw.line((a, b), fill=color, width=width)
+    start, end = points[-2], points[-1]
+    angle = atan2(end[1]-start[1], end[0]-start[0])
+    length = 19
+    a = (end[0]-length*cos(angle-pi/7), end[1]-length*sin(angle-pi/7))
+    b = (end[0]-length*cos(angle+pi/7), end[1]-length*sin(angle+pi/7))
+    draw.polygon([end, a, b], fill=color)
+
+def dashed_link(draw, start, end, color):
+    dx, dy = end[0]-start[0], end[1]-start[1]
+    distance = max(1, (dx*dx + dy*dy) ** .5)
+    ux, uy = dx/distance, dy/distance
+    for n in range(0, int(distance), 20):
+        if n % 40 == 0:
+            a = (start[0]+ux*n, start[1]+uy*n)
+            b = (start[0]+ux*min(n+12, distance), start[1]+uy*min(n+12, distance))
+            draw.line((a, b), fill=color, width=3)
+
+def label(draw, x, y, text, color):
+    font = hexfont(15, True)
+    width = int(draw.textlength(text, font=font)) + 20
+    draw.rounded_rectangle((x, y, x+width, y+27), radius=12, fill='white', outline=color, width=2)
+    draw.text((x+10, y+5), text, font=font, fill=color)
+
 def make_map():
-    image = PILImage.new('RGB', (1600, 920), '#F8FBFD')
+    image = PILImage.new('RGB', (1800, 1210), '#F8FBFD')
     draw = ImageDraw.Draw(image)
-    draw.text((60,38), 'Carte des outils', font=hexfont(40, True), fill=NAVY)
-    draw.text((60,88), 'Vert : les données. Bleu : la question et la réponse du chatbot.', font=hexfont(21), fill=MUTED)
-    box(draw, 65, 225, 275, 180, 'CSV', 'Les fiches de départ', 'Les données à importer', GREEN)
-    box(draw, 470, 225, 310, 180, 'Supabase', 'Les fiches et la clé API_1', 'Les fiches ou le contexte du chat', NAVY)
-    box(draw, 1030, 225, 310, 180, 'HTML local', 'Les fiches et les réponses', 'Une recherche ou une question', BLUE)
-    box(draw, 470, 600, 310, 180, 'Gemini', 'Question et fiches retenues', 'Une réponse avec sources', BLUE)
-    box(draw, 1030, 600, 310, 180, 'GitHub', 'Le code et les documents', 'L historique des versions', GREEN)
-    # data path
-    arrow(draw, (340,315),(470,315),GREEN)
-    arrow(draw, (780,315),(1030,315),GREEN)
-    # RAG path
-    arrow(draw, (1030,365),(780,365),BLUE)
-    arrow(draw, (625,405),(625,600),BLUE)
-    arrow(draw, (780,690),(1030,690),BLUE)
-    draw.text((360,280),'import',font=hexfont(17,True),fill=GREEN)
-    draw.text((820,280),'lecture',font=hexfont(17,True),fill=GREEN)
-    draw.text((825,390),'question',font=hexfont(17,True),fill=BLUE)
-    draw.text((640,500),'fiches retenues',font=hexfont(17,True),fill=BLUE)
-    draw.text((805,660),'réponse et sources',font=hexfont(17,True),fill=BLUE)
-    # outer tools
-    draw.rounded_rectangle((75,485,340,570), radius=15, fill='#EEF3F7', outline='#B8C7D5', width=2)
-    draw.text((92,500),'AGENTS.md',font=hexfont(20,True),fill=NAVY)
-    draw.text((92,530),'Les règles et la mémoire du projet.',font=hexfont(15),fill=INK)
-    draw.rounded_rectangle((1020,485,1350,570), radius=15, fill='#EEF3F7', outline='#B8C7D5', width=2)
-    draw.text((1038,500),'ChatGPT',font=hexfont(20,True),fill=NAVY)
-    draw.text((1038,530),'Aide à planifier, expliquer et coder.',font=hexfont(15),fill=INK)
+    purple = '#7C3AED'
+    draw.text((58, 34), 'La carte des outils', font=hexfont(42, True), fill=NAVY)
+    draw.text((58, 88), 'Chaque flèche explique ce qui passe d un outil à l autre.', font=hexfont(21), fill=MUTED)
+    draw.rounded_rectangle((58, 136, 1742, 194), radius=18, fill='white', outline=LINE, width=2)
+    draw.line((90, 165, 155, 165), fill=GREEN, width=6); draw.text((175, 150), 'données des fiches', font=hexfont(17, True), fill=GREEN)
+    draw.line((505, 165, 570, 165), fill=BLUE, width=6); draw.text((590, 150), 'question et réponse du chatbot', font=hexfont(17, True), fill=BLUE)
+    dashed_link(draw, (1060,165), (1125,165), purple); draw.text((1145,150), 'aide de ChatGPT', font=hexfont(17, True), fill=purple)
+
+    # Les outils qui font tourner l application
+    draw.text((58, 220), '1. L application qui tourne', font=hexfont(22, True), fill=NAVY)
+    role_box(draw, 70, 270, 325, 185, 'CSV', 'Les fiches de départ', GREEN, '147 lignes à importer.')
+    role_box(draw, 720, 245, 395, 230, 'Supabase : base', 'Garde les fiches', NAVY, 'Elle donne les fiches à la page HTML.')
+    role_box(draw, 1405, 270, 325, 185, 'HTML local', 'L écran que tu utilises', BLUE, 'Deux onglets : fiches et chatbot.')
+    arrow_path(draw, [(395, 360), (720, 360)], GREEN)
+    label(draw, 477, 315, 'import des fiches', GREEN)
+    arrow_path(draw, [(1115, 360), (1405, 360)], GREEN)
+    label(draw, 1188, 315, 'lecture des fiches', GREEN)
+
+    draw.text((58, 535), '2. Le trajet d une question au chatbot', font=hexfont(22, True), fill=NAVY)
+    role_box(draw, 655, 650, 455, 210, 'Fonction Supabase', 'Prépare la réponse', NAVY, 'Elle cherche les fiches, garde API_1 privée et appelle Gemini.')
+    role_box(draw, 1405, 680, 325, 185, 'Gemini', 'Rédige la réponse', BLUE, 'Il lit la question et les fiches retenues.')
+    arrow_path(draw, [(1480, 455), (1290, 545), (1110, 705)], BLUE)
+    label(draw, 1200, 545, 'question', BLUE)
+    arrow_path(draw, [(1110, 725), (1405, 725)], BLUE)
+    label(draw, 1165, 680, 'question + fiches utiles', BLUE)
+    arrow_path(draw, [(1405, 820), (1110, 820)], BLUE)
+    label(draw, 1180, 840, 'réponse de Gemini', BLUE)
+    arrow_path(draw, [(1110, 850), (1300, 955), (1505, 455)], BLUE)
+    label(draw, 1290, 940, 'réponse + sources', BLUE)
+
+    # Les outils de préparation et le rôle transversal de ChatGPT
+    draw.text((58, 930), '3. Les outils de préparation et de suivi', font=hexfont(22, True), fill=NAVY)
+    role_box(draw, 70, 980, 315, 170, 'AGENTS.md', 'Les règles du projet', GREEN, 'Il guide les décisions et la mémoire.')
+    role_box(draw, 505, 980, 430, 170, 'ChatGPT', 'Le guide de travail', purple, 'Il analyse, explique, crée le code, teste et prépare les versions.')
+    role_box(draw, 1055, 980, 330, 170, 'GitHub', 'L historique du code', GREEN, 'Il garde le HTML, les documents et les versions.')
+    dashed_link(draw, (385, 1065), (505, 1065), purple); label(draw, 390, 1025, 'lit les règles', purple)
+    dashed_link(draw, (505, 1115), (325, 455), purple); label(draw, 300, 710, 'analyse sans modifier', purple)
+    dashed_link(draw, (720, 980), (875, 475), purple); label(draw, 745, 565, 'aide à configurer', purple)
+    dashed_link(draw, (935, 1065), (1055, 1065), purple); label(draw, 930, 1025, 'prépare le commit', purple)
+    dashed_link(draw, (805, 980), (1510, 455), purple); label(draw, 1110, 590, 'aide à créer et tester', purple)
+    draw.text((70, 1170), 'ChatGPT est relié à tous les outils : il aide à les préparer, mais il ne remplace pas tes décisions ni tes accès.', font=hexfont(17, True), fill=purple)
     image.save(MAP)
 
 def three_column(title_text, request, outcome, check):
@@ -166,7 +218,7 @@ def build():
     s.append(PageBreak())
     # Page 2
     s += title('La carte des outils', 'Comprendre les liaisons en un regard')
-    s += [Image(str(MAP), width=178*mm, height=102.35*mm), Spacer(1,5), p('<b>Le chemin des données :</b> CSV → Supabase → HTML.<br/><b>Le chemin du chatbot :</b> HTML → Supabase → Gemini → HTML.', 'GuideSmall'), h('Ce que chaque outil apporte',2), p('Le CSV apporte le contenu de départ. Supabase garde les données et protège la clé Gemini. Le HTML est l écran que tu utilises. Gemini écrit la réponse. GitHub mémorise les versions. AGENTS.md rappelle les règles. ChatGPT t aide à organiser le travail.')] 
+    s += [Image(str(MAP), width=178*mm, height=119.6*mm), Spacer(1,5), p('<b>Les flèches vertes :</b> les fiches partent du CSV, sont importées dans Supabase, puis sont lues dans le HTML.<br/><b>Les flèches bleues :</b> une question part du HTML, passe par la fonction Supabase, est donnée à Gemini avec des fiches utiles, puis revient au HTML avec une réponse et ses sources.', 'GuideSmall'), p('<b>Les traits violets :</b> ChatGPT ne participe pas à la réponse du chatbot. Il est relié à tous les outils pendant la construction : il lit AGENTS.md, analyse le CSV, aide à configurer Supabase, crée et teste le HTML, puis prépare la version GitHub.', 'GuideSmall')]
     s.append(PageBreak())
     # Page 3
     s += title('Travailler avec ChatGPT', 'Ce qui peut être délégué et ce que je garde en main')
